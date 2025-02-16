@@ -10,18 +10,30 @@ async function signedFetch(url: string, options: RequestInit = {}): Promise<Resp
     // Get the relative URL by removing the base URL
     const relativeUrl = url.replace(API_BASE_URL, '');
     
+    // Parse body if it's a string (JSON)
+    let parsedBody = {};
+    if (typeof options.body === 'string') {
+        try {
+            parsedBody = JSON.parse(options.body);
+        } catch {
+            parsedBody = {};
+        }
+    } else if (options.body) {
+        parsedBody = options.body;
+    }
+    
     // Prepare the data for signing
     const data = JSON.stringify({
         method: options.method || 'GET',
         url: relativeUrl,
-        body: options.body || {},
+        body: parsedBody,
         nonce
     });
 
     console.log('Generating signature with:', {
         method: options.method || 'GET',
         url: relativeUrl,
-        body: options.body || {},
+        body: parsedBody,
         nonce,
         timestamp,
         data

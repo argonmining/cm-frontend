@@ -14,16 +14,17 @@ async function signedFetch(url: string, options: RequestInit = {}): Promise<Resp
     const data = JSON.stringify({
         method: options.method || 'GET',
         url: relativeUrl,
-        body: options.body,
+        body: options.body || {},
         nonce
     });
 
     console.log('Generating signature with:', {
         method: options.method || 'GET',
         url: relativeUrl,
-        body: options.body,
+        body: options.body || {},
         nonce,
-        timestamp
+        timestamp,
+        data
     });
 
     // Generate signature

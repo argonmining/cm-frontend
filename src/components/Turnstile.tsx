@@ -11,19 +11,24 @@ export default function Turnstile({ onVerify }: TurnstileProps) {
     useEffect(() => {
         // Initialize turnstile when the component mounts
         const turnstileCallback = () => {
-            // @ts-ignore - turnstile is added by the script
-            window.turnstile.render('#turnstile-container', {
-                sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
-                theme: 'dark',
-                callback: (token: string) => {
-                    console.log('Captcha verified');
-                    onVerify();
-                },
-            });
+            const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+            if (!siteKey) {
+                console.error('Turnstile site key is not configured');
+                return;
+            }
+
+            if (window.turnstile) {
+                window.turnstile.render('#turnstile-container', {
+                    sitekey: siteKey,
+                    theme: 'dark',
+                    callback: function() {
+                        console.log('Captcha verified');
+                        onVerify();
+                    },
+                });
+            }
         };
 
-        // If turnstile is already loaded, initialize immediately
-        // @ts-ignore - turnstile is added by the script
         if (window.turnstile) {
             turnstileCallback();
         } else {

@@ -22,7 +22,7 @@ export async function submitClaim(walletAddress: string): Promise<ApiResponse<Cl
 
         const data = await response.json();
         return data;
-    } catch (error) {
+    } catch {
         return {
             success: false,
             error: 'Failed to submit claim. Please try again.',
@@ -44,7 +44,7 @@ export async function getClaims(walletAddress: string): Promise<ApiResponse<Clai
 
         const data = await response.json();
         return data;
-    } catch (error) {
+    } catch {
         return {
             success: false,
             error: 'Failed to fetch claims. Please try again.',

@@ -2,7 +2,9 @@ export interface Claim {
     id: number;
     wallet_address: string;
     amount: string;
-    status: 'pending' | 'approved' | 'rejected';
+    status: 'processing' | 'completed' | 'failed';
+    transaction_hash?: string;
+    transaction_error?: string;
     created_at: Date;
     updated_at: Date;
 }

@@ -113,7 +113,7 @@ export function ClaimForm() {
                             </div>
                             {claim.transaction_hash && (
                                 <a
-                                    href={`https://explorer.kaspa.org/txs/${claim.transaction_hash}`}
+                                    href={`https://kas.fyi/transaction/${claim.transaction_hash}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-xs text-indigo-400 hover:text-indigo-300"

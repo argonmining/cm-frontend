@@ -87,6 +87,13 @@ export function ClaimForm() {
         setIsCaptchaVerified(true);
     }, []);
 
+    const formatAmount = (amount: string): string => {
+        // Convert amount to number and divide by 10^8 (8 decimal places)
+        const value = parseInt(amount) / Math.pow(10, 8);
+        // Format with no decimal places since we're dealing with whole numbers
+        return value.toLocaleString();
+    };
+
     const renderClaimHistory = () => {
         if (claimHistory.length === 0) return null;
 
@@ -105,7 +112,7 @@ export function ClaimForm() {
                                     {claim.status.charAt(0).toUpperCase() + claim.status.slice(1)}
                                 </span>
                                 <p className="text-sm text-gray-300 mt-2">
-                                    Amount: {claim.amount} $CRUMBS
+                                    Amount: {formatAmount(claim.amount)} $CRUMBS
                                 </p>
                                 <p className="text-xs text-gray-500 mt-1">
                                     {new Date(claim.created_at).toLocaleString()}
@@ -146,7 +153,7 @@ export function ClaimForm() {
                     CRUMBS tokens are the foundation of the Crumpet Media platform,
                     enabling content creators and consumers to participate in the future of
                     crypto-native media. Enter your KRC-20 wallet address below to claim
-                    your tokens.
+                    your tokens for free. This helps properly & fairly distribute $CRUMBS.
                 </p>
 
                 <form onSubmit={handleSubmit} className="space-y-6">

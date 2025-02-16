@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Button } from './Button';
 import { submitClaim, getClaims } from '@/lib/api';
 import type { Claim } from '@/types';
+import Turnstile from './Turnstile';
 
 const KASPA_ADDRESS_REGEX = /^kaspa:[a-z0-9]{61,63}$/;
 
@@ -12,52 +13,13 @@ export function ClaimForm() {
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingHistory, setIsLoadingHistory] = useState(false);
     const [error, setError] = useState('');
-    const [claimResult, setClaimResult] = useState<Claim | null>(null);
     const [claimHistory, setClaimHistory] = useState<Claim[]>([]);
-    const [showHistory, setShowHistory] = useState(false);
+    const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError('');
-        setClaimResult(null);
-        setShowHistory(false);
-
-        if (!KASPA_ADDRESS_REGEX.test(walletAddress)) {
-            setError('Please enter a valid Kaspa wallet address');
-            return;
-        }
-
-        setIsLoading(true);
-
-        try {
-            const response = await submitClaim(walletAddress);
-            if (response.success && response.data) {
-                setClaimResult(response.data);
-                setWalletAddress('');
-            } else {
-                setError(response.error || 'Failed to submit claim');
-            }
-        } catch {
-            setError('An unexpected error occurred');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleViewHistory = async () => {
-        setError('');
-        setClaimResult(null);
-        setShowHistory(true);
-
-        if (!KASPA_ADDRESS_REGEX.test(walletAddress)) {
-            setError('Please enter a valid Kaspa wallet address');
-            return;
-        }
-
+    const loadClaimHistory = async (address: string) => {
         setIsLoadingHistory(true);
-
         try {
-            const response = await getClaims(walletAddress);
+            const response = await getClaims(address);
             if (response.success && response.data) {
                 setClaimHistory(response.data);
                 if (response.data.length === 0) {
@@ -73,49 +35,63 @@ export function ClaimForm() {
         }
     };
 
-    const renderClaimStatus = () => {
-        if (!claimResult) return null;
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError('');
 
-        const statusColors = {
-            processing: 'text-yellow-500',
-            completed: 'text-green-500',
-            failed: 'text-red-500'
-        };
+        if (!KASPA_ADDRESS_REGEX.test(walletAddress)) {
+            setError('Please enter a valid Kaspa wallet address');
+            return;
+        }
 
-        return (
-            <div className="mt-4 p-4 bg-black/20 rounded-lg">
-                <h3 className={`text-lg font-medium ${statusColors[claimResult.status]}`}>
-                    Claim Status: {claimResult.status.charAt(0).toUpperCase() + claimResult.status.slice(1)}
-                </h3>
-                {claimResult.transaction_hash && (
-                    <p className="text-sm text-gray-300 mt-2">
-                        Transaction Hash: <a 
-                            href={`https://explorer.kaspa.org/txs/${claimResult.transaction_hash}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-indigo-400 hover:text-indigo-300"
-                        >
-                            {claimResult.transaction_hash}
-                        </a>
-                    </p>
-                )}
-                {claimResult.transaction_error && (
-                    <p className="text-sm text-red-400 mt-2">
-                        Error: {claimResult.transaction_error}
-                    </p>
-                )}
-                <p className="text-sm text-gray-400 mt-2">
-                    Amount: {claimResult.amount} $CRUMBS
-                </p>
-            </div>
-        );
+        if (!isCaptchaVerified) {
+            setError('Please complete the captcha verification');
+            return;
+        }
+
+        setIsLoading(true);
+
+        try {
+            const response = await submitClaim(walletAddress);
+            if (response.success && response.data) {
+                // Load claim history after successful claim
+                await loadClaimHistory(walletAddress);
+                setWalletAddress('');
+            } else {
+                setError(response.error || 'Failed to submit claim');
+            }
+        } catch {
+            setError('An unexpected error occurred');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
+    const handleViewHistory = async () => {
+        setError('');
+
+        if (!KASPA_ADDRESS_REGEX.test(walletAddress)) {
+            setError('Please enter a valid Kaspa wallet address');
+            return;
+        }
+
+        if (!isCaptchaVerified) {
+            setError('Please complete the captcha verification');
+            return;
+        }
+
+        await loadClaimHistory(walletAddress);
+    };
+
+    const onCaptchaVerify = useCallback(() => {
+        setIsCaptchaVerified(true);
+    }, []);
+
     const renderClaimHistory = () => {
-        if (!showHistory || claimHistory.length === 0) return null;
+        if (claimHistory.length === 0) return null;
 
         return (
-            <div className="mt-4 space-y-3">
+            <div className="mt-8 space-y-3">
                 <h3 className="text-lg font-medium text-white">Claim History</h3>
                 {claimHistory.map((claim) => (
                     <div key={claim.id} className="p-4 bg-black/20 rounded-lg">
@@ -160,7 +136,7 @@ export function ClaimForm() {
     return (
         <div className="w-full max-w-md mx-auto p-6 bg-black/40 backdrop-blur-sm rounded-lg">
             <h1 className="text-3xl font-bold text-white mb-4">
-                Claim $CRUMBS Tokens Free
+                Claim $CRUMBS Tokens
             </h1>
             <p className="text-gray-400 mb-8">
                 CRUMBS tokens are the foundation of the Crumpet Media platform,
@@ -197,14 +173,15 @@ export function ClaimForm() {
                     <div className="text-red-500 text-sm">{error}</div>
                 )}
 
-                {renderClaimStatus()}
-                {renderClaimHistory()}
+                <div className="flex justify-center">
+                    <Turnstile onVerify={onCaptchaVerify} />
+                </div>
 
                 <div className="flex gap-4">
                     <Button 
                         type="submit" 
                         isLoading={isLoading} 
-                        disabled={isLoading || isLoadingHistory}
+                        disabled={isLoading || isLoadingHistory || !isCaptchaVerified}
                         className="flex-1"
                     >
                         Claim Tokens
@@ -214,13 +191,15 @@ export function ClaimForm() {
                         variant="secondary"
                         onClick={handleViewHistory}
                         isLoading={isLoadingHistory}
-                        disabled={isLoading || isLoadingHistory}
+                        disabled={isLoading || isLoadingHistory || !isCaptchaVerified}
                         className="flex-1"
                     >
                         View History
                     </Button>
                 </div>
             </form>
+
+            {renderClaimHistory()}
         </div>
     );
 } 

@@ -7,12 +7,23 @@ async function signedFetch(url: string, options: RequestInit = {}): Promise<Resp
     const timestamp = Date.now();
     const nonce = generateNonce();
     
+    // Get the relative URL by removing the base URL
+    const relativeUrl = url.replace(API_BASE_URL, '');
+    
     // Prepare the data for signing
     const data = JSON.stringify({
         method: options.method || 'GET',
-        url: url.replace(API_BASE_URL, ''),
+        url: relativeUrl,
         body: options.body,
         nonce
+    });
+
+    console.log('Generating signature with:', {
+        method: options.method || 'GET',
+        url: relativeUrl,
+        body: options.body,
+        nonce,
+        timestamp
     });
 
     // Generate signature

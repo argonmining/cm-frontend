@@ -7,7 +7,7 @@ export async function generateSignature(data: string, timestamp: number): Promis
     const key = encoder.encode(API_SECRET);
     const message = encoder.encode(`${data}:${timestamp}`);
     
-    // Create HMAC
+    // Create HMAC with SHA-256
     const cryptoKey = await crypto.subtle.importKey(
         'raw',
         key,

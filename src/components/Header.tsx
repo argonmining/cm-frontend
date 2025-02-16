@@ -11,18 +11,22 @@ export function Header() {
                         </Link>
                     </div>
                     <nav className="flex space-x-8">
-                        <Link
-                            href="/whitepaper"
+                        <a
+                            href="/docs/whitepaper.pdf"
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="text-gray-300 hover:text-white transition-colors"
                         >
                             Whitepaper
-                        </Link>
-                        <Link
-                            href="/crumbs"
+                        </a>
+                        <a
+                            href="https://kas.fyi/token/krc20/CRUMBS"
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="text-gray-300 hover:text-white transition-colors"
                         >
                             $CRUMBS
-                        </Link>
+                        </a>
                     </nav>
                 </div>
             </div>

@@ -162,7 +162,7 @@ export function ClaimForm() {
             <div className="bg-black/40 backdrop-blur-sm border border-white/10 rounded-xl p-8 shadow-2xl">
                 <div className="flex justify-between items-start mb-6">
                     <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
-                        Crumpet Media Toaster
+                        $CRUMBS Toaster
                     </h1>
                     {faucetBalance && (
                         <div className="flex flex-col items-end">

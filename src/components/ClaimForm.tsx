@@ -162,11 +162,11 @@ export function ClaimForm() {
             <div className="bg-black/40 backdrop-blur-sm border border-white/10 rounded-xl p-8 shadow-2xl">
                 <div className="flex justify-between items-start mb-6">
                     <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
-                        Claim $CRUMBS Tokens
+                        Crumpet Media Toaster
                     </h1>
                     {faucetBalance && (
                         <div className="flex flex-col items-end">
-                            <div className="text-sm text-gray-400">Toaster Balance</div>
+                            <div className="text-sm text-gray-400">Faucet Balance</div>
                             <div className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
                                 {faucetBalance}
                             </div>

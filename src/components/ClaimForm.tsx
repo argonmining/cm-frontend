@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Button } from './Button';
-import { submitClaim, getClaims } from '@/lib/api';
+import { submitClaim, getClaims, getFaucetBalance } from '@/lib/api';
 import type { Claim } from '@/types';
 import Turnstile from './Turnstile';
 
@@ -15,6 +15,20 @@ export function ClaimForm() {
     const [error, setError] = useState('');
     const [claimHistory, setClaimHistory] = useState<Claim[]>([]);
     const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
+    const [faucetBalance, setFaucetBalance] = useState<string | null>(null);
+
+    useEffect(() => {
+        const loadFaucetBalance = async () => {
+            const balance = await getFaucetBalance();
+            setFaucetBalance(balance);
+        };
+
+        loadFaucetBalance();
+        // Refresh balance every 5 minutes
+        const interval = setInterval(loadFaucetBalance, 5 * 60 * 1000);
+        
+        return () => clearInterval(interval);
+    }, []);
 
     const loadClaimHistory = async (address: string) => {
         setIsLoadingHistory(true);
@@ -146,9 +160,19 @@ export function ClaimForm() {
     return (
         <div className="w-full max-w-2xl mx-auto">
             <div className="bg-black/40 backdrop-blur-sm border border-white/10 rounded-xl p-8 shadow-2xl">
-                <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 mb-4">
-                    Claim $CRUMBS Tokens
-                </h1>
+                <div className="flex justify-between items-start mb-6">
+                    <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
+                        Claim $CRUMBS Tokens
+                    </h1>
+                    {faucetBalance && (
+                        <div className="flex flex-col items-end">
+                            <div className="text-sm text-gray-400">Toaster Balance</div>
+                            <div className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
+                                {faucetBalance}
+                            </div>
+                        </div>
+                    )}
+                </div>
                 <p className="text-gray-400 text-lg mb-8">
                     CRUMBS tokens are the foundation of the Crumpet Media platform,
                     enabling content creators and consumers to participate in the future of

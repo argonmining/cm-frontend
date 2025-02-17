@@ -2,6 +2,9 @@ import { ApiResponse, Claim } from '@/types';
 import { generateSignature, generateNonce } from './security';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+const KASPLEX_API_URL = 'https://api.kasplex.org/v1';
+const FAUCET_ADDRESS = 'kaspa:qrk00pw5g289ar7r4nc63g6dtduref7rumk00w4vt799udqp3fz8ykzm8zwu5';
+const FAUCET_TOKEN = 'CRUMBS';
 
 async function signedFetch(url: string, options: RequestInit = {}): Promise<Response> {
     const timestamp = Date.now();
@@ -103,5 +106,50 @@ export async function getClaims(walletAddress: string): Promise<ApiResponse<Clai
             success: false,
             error: 'Failed to fetch claims. Please try again.',
         };
+    }
+}
+
+export async function getFaucetBalance(): Promise<string | null> {
+    try {
+        const response = await fetch(
+            `${KASPLEX_API_URL}/krc20/address/${FAUCET_ADDRESS}/token/${FAUCET_TOKEN}`
+        );
+        
+        if (!response.ok) {
+            console.error('Failed to fetch faucet balance');
+            return null;
+        }
+
+        const data = await response.json();
+        if (data.message === 'successful' && data.result?.[0]?.balance) {
+            // Handle the balance with BigInt to avoid floating point issues
+            const balanceStr = data.result[0].balance;
+            const balance = BigInt(balanceStr);
+            const divisor = BigInt(10 ** 8);
+            
+            // Convert to a decimal string safely
+            const wholePart = balance / divisor;
+            const wholeStr = wholePart.toString();
+            const numericValue = Number(wholeStr);
+            
+            // Format with appropriate suffix
+            if (wholePart >= BigInt(1000000)) {
+                const millions = numericValue / 1000000;
+                return `${millions.toFixed(3)} Million`;
+            } else if (wholePart >= BigInt(1000)) {
+                const thousands = numericValue / 1000;
+                return `${thousands.toFixed(3)} Thousand`;
+            } else {
+                return numericValue.toLocaleString(undefined, {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 3
+                });
+            }
+        }
+        
+        return null;
+    } catch (error) {
+        console.error('Error fetching faucet balance:', error);
+        return null;
     }
 } 

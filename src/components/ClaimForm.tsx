@@ -166,7 +166,7 @@ export function ClaimForm() {
                     </h1>
                     {faucetBalance && (
                         <div className="flex flex-col items-end">
-                            <div className="text-sm text-gray-400">Faucet Balance</div>
+                            <div className="text-sm text-gray-400">Toaster Balance</div>
                             <div className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
                                 {faucetBalance}
                             </div>

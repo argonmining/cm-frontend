@@ -45,7 +45,7 @@ export default function Home() {
             </div>
 
             {/* Content Section */}
-            <div className="relative z-10 px-4 pt-20">
+            <div className="relative z-10 px-4 pt-20 pb-48">
                 <div className="max-w-4xl mx-auto">
                     <ClaimForm />
                 </div>

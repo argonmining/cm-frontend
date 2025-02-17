@@ -4,22 +4,25 @@ import Image from 'next/image';
 export default function Home() {
     return (
         <main className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
-            {/* Hero Section with Background Image */}
+            {/* Hero Section */}
             <div className="relative h-[40vh] min-h-[300px] w-full overflow-hidden">
-                {/* Background Image */}
-                <div className="absolute inset-0">
+                {/* Dark Gradient Background */}
+                <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-900" />
+                
+                {/* Vertical Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black" />
+
+                {/* Large Logo */}
+                <div className="absolute top-8 left-8 z-20">
                     <Image
-                        src="/images/hero-background.png"
-                        alt="Hero background"
-                        fill
+                        src="/images/crumpet-logo.png"
+                        alt="Crumpet Logo"
+                        width={200}
+                        height={200}
                         priority
-                        className="object-cover object-center"
-                        quality={100}
+                        className="w-[200px] h-[200px]"
                     />
                 </div>
-                
-                {/* Single Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black" />
 
                 {/* Navigation Links */}
                 <div className="absolute top-4 right-4 z-20 flex space-x-8">

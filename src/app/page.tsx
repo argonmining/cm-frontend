@@ -21,11 +21,8 @@ export default function Home() {
                     />
                 </div>
                 
-                {/* Gradient Overlays */}
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/50 to-black z-10" />
-                <div className="absolute inset-0 bg-gradient-to-r from-silver/20 via-bright-teal/20 to-custom-teal/20 animate-gradient-x">
-                    <div className="absolute inset-0 backdrop-blur-xl" />
-                </div>
+                {/* Single Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black" />
             </div>
 
             {/* Content Section */}

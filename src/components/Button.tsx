@@ -21,7 +21,7 @@ export function Button({
                 'disabled:opacity-50 disabled:cursor-not-allowed',
                 'border focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black',
                 {
-                    'bg-gradient-to-r from-indigo-500 via-purple-500 to-custom-teal text-white border-transparent hover:from-indigo-600 hover:via-purple-600 hover:to-custom-teal focus:ring-purple-500':
+                    'bg-gradient-to-r from-indigo-500 via-bright-teal to-custom-teal text-white border-transparent hover:from-indigo-600 hover:via-bright-teal hover:to-custom-teal focus:ring-bright-teal':
                         variant === 'primary',
                     'bg-white/5 text-white border-white/10 hover:bg-white/10 hover:border-white/20 focus:ring-gray-500':
                         variant === 'secondary',

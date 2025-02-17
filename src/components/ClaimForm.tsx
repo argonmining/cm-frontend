@@ -161,13 +161,13 @@ export function ClaimForm() {
         <div className="w-full max-w-2xl mx-auto">
             <div className="bg-black/40 backdrop-blur-sm border border-white/10 rounded-xl p-8 shadow-2xl">
                 <div className="flex justify-between items-start mb-6">
-                    <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-bright-teal to-custom-teal">
+                    <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-silver via-bright-teal to-custom-teal">
                         $CRUMBS Toaster
                     </h1>
                     {faucetBalance && (
                         <div className="flex flex-col items-end">
                             <div className="text-sm text-gray-400">Toaster Balance</div>
-                            <div className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-bright-teal">
+                            <div className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-silver to-bright-teal">
                                 {faucetBalance}
                             </div>
                         </div>
@@ -195,7 +195,7 @@ export function ClaimForm() {
                             onChange={(e) => setWalletAddress(e.target.value.toLowerCase())}
                             placeholder="kaspa:..."
                             pattern="^kaspa:[a-z0-9]{61,63}$"
-                            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-bright-teal focus:border-transparent transition-all"
                             required
                             disabled={isLoading || isLoadingHistory}
                         />

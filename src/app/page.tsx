@@ -10,7 +10,7 @@ export default function Home() {
             <div className="relative h-[40vh] min-h-[300px] w-full overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/50 to-black z-10" />
                 {/* Placeholder for image/animation */}
-                <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 via-bright-teal/20 to-custom-teal/20 animate-gradient-x">
+                <div className="absolute inset-0 bg-gradient-to-r from-silver/20 via-bright-teal/20 to-custom-teal/20 animate-gradient-x">
                     <div className="absolute inset-0 backdrop-blur-3xl" />
                 </div>
             </div>

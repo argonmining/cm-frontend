@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Button } from './Button';
 import { submitClaim, getClaims, getFaucetBalance } from '@/lib/api';
+import { checkVPN } from '@/lib/vpnDetection';
 import type { Claim } from '@/types';
 import Turnstile from './Turnstile';
 
@@ -12,10 +13,12 @@ export function ClaimForm() {
     const [walletAddress, setWalletAddress] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+    const [isCheckingVPN, setIsCheckingVPN] = useState(false);
     const [error, setError] = useState('');
     const [claimHistory, setClaimHistory] = useState<Claim[]>([]);
     const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
     const [faucetBalance, setFaucetBalance] = useState<string | null>(null);
+    const [vpnError, setVpnError] = useState<string | null>(null);
 
     useEffect(() => {
         const loadFaucetBalance = async () => {
@@ -52,6 +55,7 @@ export function ClaimForm() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+        setVpnError(null);
 
         if (!KASPA_ADDRESS_REGEX.test(walletAddress)) {
             setError('Please enter a valid Kaspa wallet address');
@@ -63,9 +67,26 @@ export function ClaimForm() {
             return;
         }
 
-        setIsLoading(true);
+        setIsCheckingVPN(true);
 
         try {
+            const vpnCheck = await checkVPN();
+            
+            if (vpnCheck.error) {
+                setError(vpnCheck.error);
+                return;
+            }
+
+            if (vpnCheck.isUsingVPN) {
+                const detectionTypes = vpnCheck.details?.detectionType.join(', ');
+                setVpnError(
+                    `We detected that you're using ${detectionTypes}. For fair distribution, please disable it and try again.`
+                );
+                return;
+            }
+
+            setIsLoading(true);
+
             const response = await submitClaim(walletAddress);
             if (response.success && response.data) {
                 // Load claim history after successful claim
@@ -78,6 +99,7 @@ export function ClaimForm() {
             setError('An unexpected error occurred');
         } finally {
             setIsLoading(false);
+            setIsCheckingVPN(false);
         }
     };
 
@@ -206,7 +228,7 @@ export function ClaimForm() {
                             pattern="^kaspa:[a-z0-9]{61,63}$"
                             className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-bright-teal focus:border-transparent transition-all"
                             required
-                            disabled={isLoading || isLoadingHistory}
+                            disabled={isLoading || isLoadingHistory || isCheckingVPN}
                         />
                         <p className="mt-2 text-sm text-gray-500">
                             Enter your Kaspa wallet address starting with &ldquo;kaspa:&rdquo;
@@ -219,6 +241,12 @@ export function ClaimForm() {
                         </div>
                     )}
 
+                    {vpnError && (
+                        <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg text-yellow-400 text-sm">
+                            {vpnError}
+                        </div>
+                    )}
+
                     <div className="flex justify-center">
                         <Turnstile onVerify={onCaptchaVerify} />
                     </div>
@@ -226,18 +254,18 @@ export function ClaimForm() {
                     <div className="flex gap-4">
                         <Button 
                             type="submit" 
-                            isLoading={isLoading} 
-                            disabled={isLoading || isLoadingHistory || !isCaptchaVerified}
+                            isLoading={isLoading || isCheckingVPN} 
+                            disabled={isLoading || isLoadingHistory || isCheckingVPN || !isCaptchaVerified}
                             className="flex-1"
                         >
-                            Claim Tokens
+                            {isCheckingVPN ? 'Checking VPN...' : 'Claim Tokens'}
                         </Button>
                         <Button 
                             type="button"
                             variant="secondary"
                             onClick={handleViewHistory}
                             isLoading={isLoadingHistory}
-                            disabled={isLoading || isLoadingHistory || !isCaptchaVerified}
+                            disabled={isLoading || isLoadingHistory || isCheckingVPN || !isCaptchaVerified}
                             className="flex-1"
                         >
                             View History

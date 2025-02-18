@@ -18,20 +18,8 @@ export async function checkVPN(): Promise<{
         detectionType: string[];
     };
 }> {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    
-    if (!apiUrl) {
-        console.error('API URL not configured');
-        return { isUsingVPN: false, error: 'API not configured properly' };
-    }
-
     try {
-        const response = await fetch(`${apiUrl}/check-vpn`, {
-            credentials: 'include', // Include cookies for session handling
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
+        const response = await fetch('/api/check-vpn');
         
         let data: VPNCheckResponse;
         try {
@@ -75,20 +63,9 @@ export async function checkVPN(): Promise<{
             };
         }
 
-        // Validate the response data structure
-        if (typeof data.data.isUsingVPN !== 'boolean') {
-            console.error('Invalid isUsingVPN type in response:', data.data.isUsingVPN);
-            return {
-                isUsingVPN: false,
-                error: 'Invalid response format from VPN service'
-            };
-        }
-
         return {
             isUsingVPN: data.data.isUsingVPN,
-            details: data.data.details,
-            // Even if no VPN is detected, we might want to show the country
-            ...(data.data.details && { country: data.data.details.country })
+            details: data.data.details
         };
     } catch (error) {
         console.error('Error checking VPN status:', error);

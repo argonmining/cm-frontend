@@ -19,6 +19,7 @@ export function ClaimForm() {
     const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
     const [faucetBalance, setFaucetBalance] = useState<string | null>(null);
     const [vpnError, setVpnError] = useState<string | null>(null);
+    const [successTxHash, setSuccessTxHash] = useState<string | null>(null);
 
     useEffect(() => {
         const loadFaucetBalance = async () => {
@@ -56,6 +57,7 @@ export function ClaimForm() {
         e.preventDefault();
         setError('');
         setVpnError(null);
+        setSuccessTxHash(null);
 
         if (!KASPA_ADDRESS_REGEX.test(walletAddress)) {
             setError('Please enter a valid Kaspa wallet address');
@@ -89,7 +91,13 @@ export function ClaimForm() {
 
             const response = await submitClaim(walletAddress);
             if (response.success && response.data) {
+                setSuccessTxHash(response.data.transaction_hash || null);
                 // Load claim history after successful claim
+                await loadClaimHistory(walletAddress);
+                setWalletAddress('');
+            } else if (response.data && response.data.transaction_hash) {
+                // If transaction_hash exists, treat as success
+                setSuccessTxHash(response.data.transaction_hash);
                 await loadClaimHistory(walletAddress);
                 setWalletAddress('');
             } else {
@@ -235,7 +243,21 @@ export function ClaimForm() {
                         </p>
                     </div>
 
-                    {error && (
+                    {successTxHash && (
+                        <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg text-green-400 text-sm flex flex-col gap-2">
+                            <span>Claim successful! Your transaction is on-chain.</span>
+                            <a
+                                href={`https://kas.fyi/transaction/${successTxHash}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="underline text-green-300"
+                            >
+                                View Transaction
+                            </a>
+                        </div>
+                    )}
+
+                    {!successTxHash && error && (
                         <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm">
                             {error}
                         </div>

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 
 interface ImagePuzzleCaptchaProps {
     onVerify: () => void;
@@ -11,10 +11,15 @@ export default function ImagePuzzleCaptcha({ onVerify }: ImagePuzzleCaptchaProps
     const [dragging, setDragging] = useState(false);
     const sliderRef = useRef<HTMLInputElement>(null);
 
-    // Random offset for puzzle piece (for demo, could be randomized per render)
-    const PUZZLE_OFFSET = 60; // px
+    // Randomize offset and vertical position for each render
     const PUZZLE_WIDTH = 40; // px
     const PUZZLE_IMAGE = '/images/captcha-bg.jpg'; // Use a public domain or your own image
+
+    // Use useMemo so the random values persist for this render
+    const { offset, top } = useMemo(() => ({
+        offset: Math.floor(Math.random() * 140) + 30, // between 30 and 170 px
+        top: Math.floor(Math.random() * 40) + 10      // between 10 and 50 px
+    }), []);
 
     // When slider is released, check if it's close enough to the target
     const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,7 +30,7 @@ export default function ImagePuzzleCaptcha({ onVerify }: ImagePuzzleCaptchaProps
     const handleSliderMouseUp = () => {
         setDragging(false);
         // If slider is within 5px of the offset, consider solved
-        if (Math.abs(sliderValue - PUZZLE_OFFSET) < 5) {
+        if (Math.abs(sliderValue - offset) < 5) {
             setSolved(true);
             onVerify();
         } else {
@@ -44,12 +49,13 @@ export default function ImagePuzzleCaptcha({ onVerify }: ImagePuzzleCaptchaProps
                 />
                 {/* Puzzle piece */}
                 <div
-                    className="absolute top-6"
+                    className="absolute"
                     style={{
+                        top: `${top}px`,
                         left: `${sliderValue}px`,
                         width: PUZZLE_WIDTH,
                         height: PUZZLE_WIDTH,
-                        background: `url(${PUZZLE_IMAGE}) -${PUZZLE_OFFSET}px -24px/256px 128px`,
+                        background: `url(${PUZZLE_IMAGE}) -${offset}px -${top}px/256px 128px`,
                         border: '2px solid #0ff',
                         borderRadius: 8,
                         boxShadow: '0 2px 8px #0008',
@@ -60,9 +66,10 @@ export default function ImagePuzzleCaptcha({ onVerify }: ImagePuzzleCaptchaProps
                 />
                 {/* Target outline */}
                 <div
-                    className="absolute top-6 border-2 border-dashed border-cyan-400 rounded"
+                    className="absolute border-2 border-dashed border-cyan-400 rounded"
                     style={{
-                        left: `${PUZZLE_OFFSET}px`,
+                        top: `${top}px`,
+                        left: `${offset}px`,
                         width: PUZZLE_WIDTH,
                         height: PUZZLE_WIDTH,
                         opacity: 0.7,

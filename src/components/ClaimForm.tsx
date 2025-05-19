@@ -5,7 +5,7 @@ import { Button } from './Button';
 import { submitClaim, getClaims, getFaucetBalance } from '@/lib/api';
 import { checkVPN } from '@/lib/vpnDetection';
 import type { Claim } from '@/types';
-import Turnstile from './Turnstile';
+import ImagePuzzleCaptcha from './ImagePuzzleCaptcha';
 
 const KASPA_ADDRESS_REGEX = /^kaspa:[a-z0-9]{61,63}$/;
 
@@ -20,6 +20,7 @@ export function ClaimForm() {
     const [faucetBalance, setFaucetBalance] = useState<string | null>(null);
     const [vpnError, setVpnError] = useState<string | null>(null);
     const [successTxHash, setSuccessTxHash] = useState<string | null>(null);
+    const [captchaKey, setCaptchaKey] = useState(() => Math.random().toString(36));
 
     useEffect(() => {
         const loadFaucetBalance = async () => {
@@ -32,6 +33,11 @@ export function ClaimForm() {
         const interval = setInterval(loadFaucetBalance, 5 * 60 * 1000);
         
         return () => clearInterval(interval);
+    }, []);
+
+    // Reset captchaKey on every page load (mount)
+    useEffect(() => {
+        setCaptchaKey(Math.random().toString(36));
     }, []);
 
     const loadClaimHistory = async (address: string) => {
@@ -58,6 +64,7 @@ export function ClaimForm() {
         setError('');
         setVpnError(null);
         setSuccessTxHash(null);
+        setCaptchaKey(Math.random().toString(36)); // Reset captcha on every claim attempt
 
         if (!KASPA_ADDRESS_REGEX.test(walletAddress)) {
             setError('Please enter a valid Kaspa wallet address');
@@ -270,7 +277,7 @@ export function ClaimForm() {
                     )}
 
                     <div className="flex justify-center">
-                        <Turnstile onVerify={onCaptchaVerify} />
+                        <ImagePuzzleCaptcha key={captchaKey} onVerify={onCaptchaVerify} />
                     </div>
 
                     <div className="flex gap-4">

@@ -5,7 +5,7 @@ import { Button } from './Button';
 import { submitClaim, getClaims, getFaucetBalance } from '@/lib/api';
 import { checkVPN } from '@/lib/vpnDetection';
 import type { Claim } from '@/types';
-import Turnstile from './Turnstile';
+import ImagePuzzleCaptcha from './ImagePuzzleCaptcha';
 
 const KASPA_ADDRESS_REGEX = /^kaspa:[a-z0-9]{61,63}$/;
 
@@ -270,7 +270,7 @@ export function ClaimForm() {
                     )}
 
                     <div className="flex justify-center">
-                        <Turnstile onVerify={onCaptchaVerify} />
+                        <ImagePuzzleCaptcha onVerify={onCaptchaVerify} />
                     </div>
 
                     <div className="flex gap-4">
